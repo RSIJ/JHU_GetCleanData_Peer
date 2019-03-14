@@ -46,10 +46,12 @@ test_data <- load_data_into_R("test")
 # Merge training and test data sets:
 full_data <- rbind(train_data, test_data)
 
+####################################################################
 #2. Extracts only the measurements on the mean and standard deviation for each measurement.
 feature_extract <- grep("(-mean|-std)\\(\\)", names(full_data), value=TRUE)
 extract_data <- full_data[,c("activity","subject",feature_extract)]
 
+####################################################################
 #3. Uses descriptive activity names to name the activities in the data set
 rootFolder <- "UCI HAR Dataset"
 
@@ -57,12 +59,13 @@ activity_names <- read.table(file.path(rootFolder,"activity_labels.txt"))
 extract_data$activity <- activity_names[extract_data[,"activity"],2]
 
 #4.Appropriately labels the data set with descriptive variable names.
-new_colNames <- gsub("^t.","Time ",names(extract_data))     # Subsitute prefix t by Time.
-new_colNames <- gsub("^f.","Frequency ",new_colNames)       # Subsitute prefix f by Frequency.
+new_colNames <- gsub("^t","Time",names(extract_data))     # Subsitute prefix t by Time.
+new_colNames <- gsub("^f","Frequency",new_colNames)       # Subsitute prefix f by Frequency.
 new_colNames <- gsub("\\(\\)","",new_colNames)              # Remove parenthess.
 
 colnames(extract_data) <- new_colNames
 
+####################################################################
 # 5. From the data set in step 4, creates a second, independent tidy data set with the average of
 # each variable for each activity and each subject.
 library(reshape2)
@@ -76,5 +79,6 @@ dataMelt <- melt(extract_data,id=c("subject","activity"), measure.vars=measure_v
 # Calculate the mean for each variable, grouped by Subject and activity.
 dataCast <- dcast(dataMelt, subject + activity ~ variable, mean)
 
-# Write output file:
+####################################################################
+# 6. Write output file:
 write.table(x=dataCast, file="tidy_data_set.txt", row.names=FALSE, quote=FALSE)
